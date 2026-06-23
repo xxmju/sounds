@@ -78,8 +78,7 @@ class Transit:
         ax.set_xlabel('Time (days)')
         ax.set_ylabel('Normalized Flux')
         ax.set_xlim(self.time[0], self.time[-1])
-        ax.set_ylim(np.nanmin(self.norm_flux)-0.5, np.nanmax(self.norm_flux)+0.5)
-
+        ax.set_ylim(np.nanmin(self.norm_flux)-0.005, np.nanmax(self.norm_flux)+0.005)
         
         def update(frame):
             
