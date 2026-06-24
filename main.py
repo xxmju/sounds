@@ -79,7 +79,17 @@ class Transit:
         self.audio_arr = audio_arr
 
         write(f"TIC{self.tic}_S{self.sector}_SONG.wav", samplerate, audio_arr)
-        
+
+        # colors
+        cmap = plt.cm.magma
+
+        sorted_args = np.argsort(self.norm_flux)
+
+        values = np.linspace(0, 1, len(self.norm_flux))
+        colors = np.empty((len(self.norm_flux), 4))  # 4 for RGBA
+        colors[sorted_args] = cmap(values)
+
+        self.colors= colors 
 
         #sd.play(audio_arr, samplerate)
         #sd.wait()
@@ -105,10 +115,14 @@ class Transit:
         ax.set_title(f"TIC {self.tic} - Sector {self.sector}")
 
         
-        def update(frame):
+        def update(i):
             
-            line.set_data(x[:frame], y[:frame])
-            return line,
+            # line.set_data(x[:frame], y[:frame])
+            # line.set_color(self.colors[frame])
+
+            plt.scatter(x[:i], y[:i], color=self.colors[i], edgecolor="k", linewidth=0.5)
+
+           # return line,
 
         
         ani = animation.FuncAnimation(
