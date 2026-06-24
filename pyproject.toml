@@ -1,0 +1,21 @@
+[build-system]
+requires = [
+    "setuptools", 
+    "numpy",
+    "cython", 
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "transitsong"
+version = "0.0.1"
+
+dependencies = [
+    "numpy",
+    "sounddevice",
+    "lightkurve",
+    "matplotlib",
+    "scipy",
+    "moviepy"
+]
