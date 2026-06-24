@@ -7,12 +7,15 @@ import matplotlib.animation as animation
 from moviepy import *
 from moviepy.video.fx import MultiplySpeed
 
+# set matplotlib preferences
+#plt.style.use(path + 'text.mplstyle')
+
 
 class Transit:
-    def __init__(self, tic, sector):
+    def __init__(self, tic, sector, window = None):
         self.tic = tic
         self.sector = sector
-
+        self.window = window
 
         search_result = lk.search_lightcurve(
             f"TIC {tic}",
@@ -22,18 +25,37 @@ class Transit:
 
         lc = search_result.download()
 
+        print("Successfully loaded lightcurve for TIC {} in sector {}".format(tic, sector))
+
         lc_binned = lc.bin(time_bin_size=0.01)
+
+        lc_binned = lc_binned.normalize()
 
         lc_fluxes = lc_binned.flux.value
         lc_times = lc_binned.time.value
-        med_value = np.nanmedian(lc_fluxes)
 
-        lc_normflux = lc_fluxes/med_value
+        #med_value = np.nanmedian(lc_fluxes)
+        
+        #lc_normflux = lc_fluxes/med_value
 
         self.time = lc_times
-        self.norm_flux = lc_normflux
+        self.norm_flux = lc_fluxes
 
 
+
+        if window is not None:
+            new_times = []
+            new_fluxes = []
+
+            for i in range(len(self.time)):
+                if self.time[i] > window[0] and self.time[i] < window[1]:
+                    new_times.append(self.time[i])
+                    new_fluxes.append(self.norm_flux[i])
+            
+            self.time = np.array(new_times)
+            self.norm_flux = np.array(new_fluxes)
+
+    
     def make_sound_arr(self, max_val=900, min_val=200):
 
         mapped_flux = (self.norm_flux - np.nanmin(self.norm_flux)) / (np.nanmax(self.norm_flux) - np.nanmin(self.norm_flux)) * (max_val - min_val) + min_val
@@ -61,6 +83,20 @@ class Transit:
 
         write(f"TIC{self.tic}_S{self.sector}_SONG.wav", samplerate, audio_arr)
 
+        # colors
+        cmap = plt.cm.magma
+
+        sorted_args = np.argsort(self.norm_flux)
+
+        values = np.linspace(0, 1, len(self.norm_flux))
+        colors = np.empty((len(self.norm_flux), 4))  # 4 for RGBA
+        colors[sorted_args] = cmap(values)
+
+        self.colors= colors 
+
+        #sd.play(audio_arr, samplerate)
+        #sd.wait()
+
 
     def make_video(self):
 
@@ -79,11 +115,17 @@ class Transit:
         ax.set_ylabel('Normalized Flux')
         ax.set_xlim(self.time[0], self.time[-1])
         ax.set_ylim(np.nanmin(self.norm_flux)-0.005, np.nanmax(self.norm_flux)+0.005)
+        ax.set_title(f"TIC {self.tic} - Sector {self.sector}")
+
         
-        def update(frame):
+        def update(i):
             
-            line.set_data(x[:frame], y[:frame])
-            return line,
+            # line.set_data(x[:frame], y[:frame])
+            # line.set_color(self.colors[frame])
+
+            plt.scatter(x[:i], y[:i], color=self.colors[i], edgecolor="k", linewidth=0.5)
+
+           # return line,
 
         
         ani = animation.FuncAnimation(
@@ -121,13 +163,30 @@ class Transit:
 
 #def play_song(Transit):
     # here is where we do the simultaneous thing?
-tic = 124029677 
-sector = 33
+#tic = 124029677 
+#sector = 33
+#window = [2217, 2220]
 
-planet = Transit(tic, sector)
+
+
+# tic = 55652896
+# sector = 63 #originally did 38
+# window = [2340, 2341]
+
+# tic = 149601126
+# sector = 32 #96
+# window = [2196, 2198.5]
+
+tic = 263930790
+sector = 73
+window = [3293, 3299]
+
+planet = Transit(tic, sector, window=window)
 planet.make_sound_arr()
 planet.make_video()
 planet.combine()
 
+
+#55652896, 38, 63
 
 
