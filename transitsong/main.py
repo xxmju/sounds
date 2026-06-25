@@ -9,8 +9,8 @@ from moviepy.video.fx import MultiplySpeed
 import os 
 from pathlib import Path
 
-# set matplotlib preferences
-#plt.style.use(path + 'text.mplstyle')
+#set matplotlib preferences
+plt.style.use(os.getcwd() + '/text.mplstyle')
 
 
 class Transit:
@@ -60,15 +60,21 @@ class Transit:
 
         if window is not None:
             new_times = []
-            new_fluxes = []
+            new_fluxes = []            
 
-            for i in range(len(self.time)):
-                if self.time[i] > window[0] and self.time[i] < window[1]:
-                    new_times.append(self.time[i])
-                    new_fluxes.append(self.norm_flux[i])
+            if window[0] < self.time[0] or window[0] > self.time[-1]:
+                self.success = False
+                raise ValueError(f"Window {window[0]}, {window[1]} is outside the range of lightcurve times {self.time[0]} - {self.time[-1]}")
             
-            self.time = np.array(new_times)
-            self.norm_flux = np.array(new_fluxes)
+            else:
+                for i in range(len(self.time)):
+                    if self.time[i] > window[0] and self.time[i] < window[1]:
+                        new_times.append(self.time[i])
+                        new_fluxes.append(self.norm_flux[i])
+                
+                
+                self.time = np.array(new_times)
+                self.norm_flux = np.array(new_fluxes)
 
     
     def make_sound_arr(self, max_val=900, min_val=200):
@@ -116,15 +122,15 @@ class Transit:
         write(song_path + f"TIC{self.tic}_S{self.sector}_SONG.wav", samplerate, audio_arr)
 
         # colors
-        cmap = plt.cm.magma
+        # cmap = plt.cm.magma
 
-        sorted_args = np.argsort(self.norm_flux)
+        # sorted_args = np.argsort(self.norm_flux)
 
-        values = np.linspace(0, 1, len(self.norm_flux))
-        colors = np.empty((len(self.norm_flux), 4))  # 4 for RGBA
-        colors[sorted_args] = cmap(values)
+        # values = np.linspace(0, 1, len(self.norm_flux))
+        # colors = np.empty((len(self.norm_flux), 4))  # 4 for RGBA
+        # colors[sorted_args] = cmap(values)
 
-        self.colors= colors 
+        # self.colors= colors 
 
         #sd.play(audio_arr, samplerate)
         #sd.wait()
@@ -150,7 +156,7 @@ class Transit:
         x = x_raw[~np.isnan(y_raw)]
 
         
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(1, dpi=500, figsize=(7, 4))
         line, = ax.plot([], [], marker='o', linestyle='', color='b') 
         ax.set_xlabel('Time (days)')
         ax.set_ylabel('Normalized Flux')
@@ -164,7 +170,7 @@ class Transit:
             # line.set_data(x[:frame], y[:frame])
             # line.set_color(self.colors[frame])
 
-            plt.scatter(x[:i], y[:i], color=self.colors[i], edgecolor="k", linewidth=0.5)
+            plt.scatter(x[:i], y[:i], color="#9564b8", edgecolor="k", linewidth=0.5)
 
            # return line,
 
@@ -195,6 +201,8 @@ class Transit:
         final_clip = video_clip.with_audio(audio_clip)
 
         song_and_dance_path = os.getcwd() + "/song_and_dance/"
+        self.song_and_dance_path = song_and_dance_path 
+
         if not os.path.isdir(song_and_dance_path):
             directory = Path(song_and_dance_path)
             directory.mkdir(parents=True, exist_ok=True)
@@ -212,12 +220,15 @@ class Transit:
         audio_clip.close()
         final_clip.close()
 
-#def play_song(Transit):
-    # here is where we do the simultaneous thing?
-#tic = 124029677 
-#sector = 33
-#window = [2217, 2220]
 
+
+tic = 124029677 
+sector = 33
+window = [2217, 2220]
+planet = Transit(tic, sector, window=window)
+planet.make_sound_arr()
+planet.make_video()
+planet.combine()
 
 
 # tic = 55652896
@@ -232,10 +243,7 @@ class Transit:
 # sector = 73
 # window = [3293, 3299]
 
-# planet = Transit(tic, sector, window=window)
-# planet.make_sound_arr()
-# planet.make_video()
-# planet.combine()
+
 
 
 #55652896, 38, 63
