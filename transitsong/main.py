@@ -163,18 +163,18 @@ class Transit:
         ax.set_xlim(self.time[0], self.time[-1])
         ax.set_ylim(np.nanmin(self.norm_flux)-0.005, np.nanmax(self.norm_flux)+0.005)
         ax.set_title(f"TIC {self.tic} - Sector {self.sector}")
+        fig.set_constrained_layout_pads(hspace=0.1)
 
-        
+
         def update(i):
             
             # line.set_data(x[:frame], y[:frame])
             # line.set_color(self.colors[frame])
 
-            plt.scatter(x[:i], y[:i], color="#9564b8", edgecolor="k", linewidth=0.5)
+            plt.scatter(x[:i], y[:i], color="#9564b8", edgecolor="k", linewidth=0.5, s=20)
 
            # return line,
 
-        
         ani = animation.FuncAnimation(
             fig, update, frames=len(x), interval=50, repeat=True
         )
@@ -233,31 +233,13 @@ class Transit:
         final_clip.close()
 
 
-
 tic = 124029677 
 sector = 33
-window = [2217, 2220]
+window = [2217, 2219]
 planet = Transit(tic, sector, window=window)
 planet.make_sound_arr()
 planet.make_video()
 planet.combine()
 
-
-# tic = 55652896
-# sector = 63 #originally did 38
-# window = [2340, 2341]
-
-# tic = 149601126
-# sector = 32 #96
-# window = [2196, 2198.5]
-
-# tic = 263930790
-# sector = 73
-# window = [3293, 3299]
-
-
-
-
-#55652896, 38, 63
 
 
