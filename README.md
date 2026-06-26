@@ -1,3 +1,5 @@
+<img width="200" height="200" alt="logo" src="https://github.com/user-attachments/assets/adb133f1-b7a2-4bb0-8fd8-10a76deb409c" />
+
 # transitsong
 Sonification of TESS lightcurves between 200-900 Hz. 
 
