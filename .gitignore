@@ -5,3 +5,4 @@ transitsong/song_and_dance/
 *.wav
 .ipynb_checkpoints
 docs/
+.DS_Store
